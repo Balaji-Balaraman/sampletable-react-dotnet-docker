@@ -23,7 +23,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS runtime
 WORKDIR /app
 COPY --from=publish /src/publish .
 
-COPY localhost.pfx /usr/local/share/ca-certificates/localhost.pfx
-RUN update-ca-certificates
+# COPY localhost.pfx /usr/local/share/ca-certificates/localhost.pfx
+# RUN update-ca-certificates
 
 ENTRYPOINT ["dotnet", "ShopAdminTool.Api.dll"]
