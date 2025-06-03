@@ -1,4 +1,4 @@
-name: Snyk Security Scan (.NET)
+name: Snyk Full Repo Security Scan (.NET)
 
 on:
   push:
@@ -7,11 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  security:
+  snyk-security:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ShopAdminTool.Server
 
     steps:
       - name: Checkout code
@@ -22,13 +19,23 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Restore all projects
+        run: |
+          for file in $(find . -name '*.csproj'); do
+            echo "Restoring $file"
+            dotnet restore "$file"
+          done
 
-      - name: Build the project
-        run: dotnet build --no-restore --configuration Release
+      - name: Build all projects
+        run: |
+          for file in $(find . -name '*.csproj'); do
+            echo "Building $file"
+            dotnet build "$file" --no-restore --configuration Release
+          done
 
-      - name: Run Snyk to check for vulnerabilities
+      - name: Run Snyk on all .csproj files
         uses: snyk/actions/dotnet@master
+        with:
+          args: --all-projects
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
