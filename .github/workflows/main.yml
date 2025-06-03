@@ -38,4 +38,4 @@ jobs:
         with:
           args: --all-projects
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_TOKEN: 8737b053-aafe-4c3b-9435-33136831924a
