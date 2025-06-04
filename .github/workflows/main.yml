@@ -2,12 +2,27 @@ name: Snyk Full Repo Security Scan (.NET)
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - feature/develop
+      - feature/integration
+      - release/master
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+      - feature/develop
+      - feature/integration
+      - release/master
 
 jobs:
   snyk-security:
+    # Conditional environment approval
+    environment:
+      name: ${{ 
+        (github.ref == 'refs/heads/feature/integration' && 'integration-approval') || 
+        (github.ref == 'refs/heads/release/master' && 'release-approval') || 
+        ''
+      }}
     runs-on: ubuntu-latest
 
     steps:
@@ -42,7 +57,7 @@ jobs:
           snyk test --all-projects --json > snyk-report.json || true
           snyk test --all-projects --json | snyk-to-html -o snyk-report.html || true
         env:
-          SNYK_TOKEN: 8737b053-aafe-4c3b-9435-33136831924a
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Upload reports to Azure Blob Storage
         run: |
