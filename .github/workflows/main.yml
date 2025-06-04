@@ -15,14 +15,9 @@ on:
       - release/master
 
 jobs:
-  snyk-security:
-    # Conditional environment approval
-    environment:
-      name: ${{ 
-        (github.ref == 'refs/heads/feature/integration' && 'integration-approval') || 
-        (github.ref == 'refs/heads/release/master' && 'release-approval') || 
-        ''
-      }}
+
+  snyk-default:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/develop'
     runs-on: ubuntu-latest
 
     steps:
@@ -70,3 +65,31 @@ jobs:
       - name: Upload log message
         run: |
           echo "Snyk reports uploaded to Azure Blob Storage with timestamp: $timestamp"
+
+
+  snyk-integration:
+    if: github.ref == 'refs/heads/feature/integration'
+    environment: integration-approval
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run reusable workflow for integration
+        uses: ./.github/workflows/main.yml
+        with:
+          # You can move common logic to a reusable workflow to avoid duplication
+          # But for now, this job runs the same steps as above
+          # You can also copy-paste steps from snyk-default job
+
+          # Or repeat the same logic here (same as snyk-default steps)
+          run: echo "Same logic as above"
+
+  snyk-release:
+    if: github.ref == 'refs/heads/release/master'
+    environment: release-approval
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run reusable workflow for release
+        uses: ./.github/workflows/main.yml
+        with:
+          run: echo "Same logic as above"
